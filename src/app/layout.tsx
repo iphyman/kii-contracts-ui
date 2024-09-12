@@ -13,9 +13,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Kii Contracts Ui",
+  title: "Kiichain Contracts Ui",
   description:
-    "Smart contract deployment and interaction tool for KII chain and other EVM compatible blockchains",
+    "Smart contract deployment and interaction tool for Kiichain and other EVM compatible blockchains",
 };
 
 export default function RootLayout({
