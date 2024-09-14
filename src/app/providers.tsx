@@ -1,5 +1,6 @@
 "use client";
 
+import Sidebar from "@app/components/Sidebar";
 import { queryClient, wagmiConfig } from "@app/configs";
 import { theme } from "@app/theme";
 import { CacheProvider } from "@chakra-ui/next-js";
@@ -34,13 +35,11 @@ export default function Providers({
       <ChakraProvider theme={theme}>
         <WagmiProvider config={wagmiConfig} initialState={initialState}>
           <QueryClientProvider client={queryClient}>
-            <Flex
-              minH="100vh"
-              flexDir="column"
-              bg="blackAlpha.800"
-              padding="2rem"
-            >
-              <Flex flex={1}>{children}</Flex>
+            <Flex minH="100vh" bg="blackAlpha.400">
+              <Sidebar />
+              <Flex flex={1} padding="2.5rem">
+                {children}
+              </Flex>
             </Flex>
           </QueryClientProvider>
         </WagmiProvider>

@@ -9,7 +9,9 @@ const config = {
 
 const styles: Styles = {
   global: {
-    // body: {},
+    body: {
+      bg: "gray.900",
+    },
   },
 };
 
