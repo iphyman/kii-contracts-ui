@@ -54,7 +54,7 @@ export default function View() {
 
   const abiFunctions = activeContract?.abi.filter((p) => p.type === "function");
   const readFunctions = abiFunctions?.filter(
-    (p) => p.stateMutability === "view"
+    (p) => p.stateMutability === "view" || p.stateMutability === "pure"
   );
   const writeFunctions = abiFunctions?.filter(
     (p) => p.stateMutability === "nonpayable" || p.stateMutability === "payable"
@@ -86,7 +86,7 @@ export default function View() {
     const func = abiFunctions?.find((p) => p.name === functionName);
 
     if (func) {
-      if (func.stateMutability === "view") {
+      if (func.stateMutability === "view" || func.stateMutability === "pure") {
         refetch();
       } else {
         if (!activeContract || !functionName || !account) return;
