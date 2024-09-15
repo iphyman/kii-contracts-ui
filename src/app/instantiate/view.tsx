@@ -152,7 +152,7 @@ export default function View() {
       ]);
 
       // redirect to contracts view
-      router.push(`/contract?=${contractAddress}`);
+      router.push(`/contract?address=${contractAddress}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConfirmed]);
