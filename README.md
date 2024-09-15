@@ -1,5 +1,7 @@
 # Kiichain Contracts UI
 
+[![youtube](https://www.youtube.com/watch?v=j9QAgGjVxwk)]
+
 Contracts UI is a developer tool designed to streamline the entire process of smart contract development. Its primary objective is to ease the technical burdens that developers often face during the deployment phase, allowing them to focus fully on crafting and refining the core business logic of their project. By abstracting away the complexities associated with deployment tooling, Contracts UI empowers developers to focusing on what truly matters: ensuring that their smart contracts align with the business goals and functional requirements of their application.
 
 In addition to simplifying development, Contracts UI provides an intuitive and user-friendly interface for interacting with deployed smart contracts. Whether you’re a developer fine-tuning your contract or a user exploring its functionality, the tool enables seamless interaction with smart contracts already deployed on public networks. This capability is crucial for verifying that everything behaves as expected in a live environment, enabling developers to conduct comprehensive tests before committing to building a full-fledged user interface. The goal is to ensure reliability and smooth operation of the smart contract, mitigating potential issues or bugs before final deployment or user integration.
@@ -7,6 +9,8 @@ In addition to simplifying development, Contracts UI provides an intuitive and u
 ![kii-app-1.PNG](https://cdn.dorahacks.io/static/files/191f6898e77df1222e44cb84c7280b93.png)
 
 ![kii-app-2.PNG](https://cdn.dorahacks.io/static/files/191f689e40de350d575aef648488248e.png)
+
+[Video Demo](https://www.youtube.com/watch?v=j9QAgGjVxwk)
 
 ## Tech Stack
 
