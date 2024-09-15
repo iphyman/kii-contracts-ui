@@ -19,20 +19,28 @@ import {
   ModalOverlay,
   Text,
   useDisclosure,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
 import { AbiParameter } from "viem";
-import { useReadContract } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 
 export default function View() {
   const searchParams = useSearchParams();
+  const toast = useToast();
   const { contractStore } = useApplication();
   const [functionName, setFunctionName] = useState<string | undefined>(
     undefined
   );
+  const [payable, setPayable] = useState<string | undefined>(undefined);
   const { isOpen, onClose, onOpen } = useDisclosure();
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const [args, setArgs] = useState<any[]>([]);
@@ -64,6 +72,13 @@ export default function View() {
     args,
   });
 
+  const { data: hash, isPending, error, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+  const { address: account } = useAccount();
+
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const readData: any = data;
 
@@ -73,6 +88,17 @@ export default function View() {
     if (func) {
       if (func.stateMutability === "view") {
         refetch();
+      } else {
+        if (!activeContract || !functionName || !account) return;
+
+        writeContract({
+          abi: activeContract.abi,
+          address: activeContract.address,
+          functionName,
+          args,
+          account,
+          value: payable ? BigInt(payable) : undefined,
+        });
       }
     }
   };
@@ -80,8 +106,31 @@ export default function View() {
   useEffect(() => {
     if (functionName) {
       setArgs([]);
+      setPayable(undefined);
     }
   }, [functionName]);
+
+  useEffect(() => {
+    if (isConfirmed) {
+      toast({
+        title: "Successful!",
+        description: "Action completed!",
+        status: "success",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConfirmed]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: `Oops! ${error.name}`,
+        description: error.message,
+        status: "error",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
 
   return (
     <>
@@ -108,9 +157,9 @@ export default function View() {
                       onOpen();
                     }}
                   />
-                  <Text fontStyle="italic">{`${p.name} (${p.inputs
+                  <Text fontStyle="italic">{`function ${p.name} (${p.inputs
                     .map((x) => x.type)
-                    .join(",")})`}</Text>
+                    .join(",")}) ${p.stateMutability} {}`}</Text>
                 </HStack>
               ))}
             </VStack>
@@ -127,12 +176,15 @@ export default function View() {
                     onClick={() => {
                       setFunctionName(p.name);
                       setArgsInput([...p.inputs]);
+                      if (p.stateMutability === "payable") {
+                        setPayable("0");
+                      }
                       onOpen();
                     }}
                   />
-                  <Text fontStyle="italic">{`${p.name} (${p.inputs
+                  <Text fontStyle="italic">{`function ${p.name} (${p.inputs
                     .map((x) => x.type)
-                    .join(",")})`}</Text>
+                    .join(",")}) ${p.stateMutability} {}`}</Text>
                 </HStack>
               ))}
             </VStack>
@@ -151,6 +203,16 @@ export default function View() {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <VStack w="full" spacing={7}>
+              {payable && (
+                <FormControl>
+                  <FormLabel fontStyle="italic">Payable (wei)</FormLabel>
+                  <Input
+                    type="string"
+                    value={payable}
+                    onChange={(e) => setPayable(e.target.value)}
+                  />
+                </FormControl>
+              )}
               {argsInputs ? (
                 argsInputs.map((p, index) => (
                   <FormControl key={index}>
@@ -183,6 +245,8 @@ export default function View() {
               mr={3}
               w="full"
               onClick={handleContractCall}
+              isDisabled={isPending}
+              isLoading={isConfirming}
             >
               Call Contract
             </Button>
