@@ -196,7 +196,10 @@ export default function View() {
               padding="8px 16px"
             >
               {!account ? (
-                <appkit-connect-button />
+                <>
+                  {/* @ts-expect-error msg */}
+                  <appkit-connect-button />
+                </>
               ) : (
                 <HStack w="full" h="full">
                   <Identicon address={account} />
