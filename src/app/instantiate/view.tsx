@@ -5,22 +5,13 @@ import { QuestionHelper } from "@app/components/QuestionHelper";
 import {
   Box,
   Button,
-  FormControl,
-  FormLabel,
+  Field,
   Heading,
   HStack,
   Icon,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
@@ -35,6 +26,17 @@ import { Abi } from "abitype/zod";
 import { AbiParameter } from "abitype";
 import { useApplication } from "@app/hooks";
 import { useRouter } from "next/navigation";
+import { toaster } from "@app/components/ui/toaster";
+import { useAppKitNetwork } from "@reown/appkit/react";
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+} from "@app/components/ui/dialog";
 
 type FoundryByteCode = {
   readonly object: Hash;
@@ -67,9 +69,10 @@ export default function View() {
   const [args, setArgs] = useState<any[]>([]);
   const [argsInputs, setArgsInput] = useState<ContructorArgs>(undefined);
   const [contractName, setContractName] = useState<string>("");
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open, onClose, onOpen } = useDisclosure();
   const { deployContract, data: hash, error } = useDeployContract();
-  const toast = useToast();
+  const { chainId } = useAppKitNetwork();
+
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
@@ -104,10 +107,10 @@ export default function View() {
       setArgsInput(constInputs);
       onOpen();
     } else {
-      toast({
+      toaster.create({
         title: "Oops!",
         description: "You have uploaded an invalid contract artifact",
-        status: "error",
+        type: "error",
       });
     }
   };
@@ -135,10 +138,10 @@ export default function View() {
   useEffect(() => {
     const contractAddress = receipt?.contractAddress;
     if (isConfirmed && contractAddress && artifact) {
-      toast({
+      toaster.create({
         title: "Successful!",
         description: `Contract deployed successfully at ${contractAddress}`,
-        status: "success",
+        type: "success",
       });
 
       const parsedArtifact: ArtifactJson = JSON.parse(artifact);
@@ -148,6 +151,7 @@ export default function View() {
           name: contractName,
           address: contractAddress,
           abi: parsedArtifact.abi,
+          chainId: Number(chainId),
         },
       ]);
 
@@ -159,10 +163,10 @@ export default function View() {
 
   useEffect(() => {
     if (error) {
-      toast({
+      toaster.create({
         title: `Oops! ${error.name}`,
         description: error.message,
-        status: "error",
+        type: "error",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -171,14 +175,16 @@ export default function View() {
   return (
     <>
       <VStack w="full">
-        <Heading fontSize="2rem">Deploy Contract</Heading>
-        <Text color="whiteAlpha.700">
+        <Heading fontSize="2rem" color="fg">
+          Deploy Contract
+        </Heading>
+        <Text color="fg.muted">
           You can deploy and instantiate new contract code.
         </Text>
-        <VStack w="full" spacing={7} mt="64px">
-          <FormControl>
+        <VStack w="full" gap={7} mt="64px">
+          <Field.Root>
             <HStack>
-              <FormLabel mr="0px">Deployer</FormLabel>
+              <Field.Label mr="0px">Deployer</Field.Label>
               <QuestionHelper text="The connected account that will be the message sender" />
             </HStack>
             <Box
@@ -186,11 +192,11 @@ export default function View() {
               h="4rem"
               borderRadius="8px"
               border="1px solid"
-              borderColor="whiteAlpha.300"
+              borderColor="border"
               padding="8px 16px"
             >
               {!account ? (
-                <w3m-button />
+                <appkit-connect-button />
               ) : (
                 <HStack w="full" h="full">
                   <Identicon address={account} />
@@ -198,20 +204,20 @@ export default function View() {
                 </HStack>
               )}
             </Box>
-          </FormControl>
-          <FormControl>
+          </Field.Root>
+          <Field.Root>
             <HStack>
-              <FormLabel mr="0px">Contract Name</FormLabel>
+              <Field.Label mr="0px">Contract Name</Field.Label>
               <QuestionHelper text="A name to distinguish this contract with" />
             </HStack>
             <Input
               placeholder="A discriptive name for this contract"
               onChange={(e) => setContractName(e.target.value)}
             />
-          </FormControl>
-          <FormControl>
+          </Field.Root>
+          <Field.Root>
             <HStack>
-              <FormLabel mr="0px">Upload Contract Artifact</FormLabel>
+              <Field.Label mr="0px">Upload Contract Artifact</Field.Label>
               <QuestionHelper text="The contract JSON artifact generated after compiling with hardhat or foundry" />
             </HStack>
             <VStack
@@ -219,14 +225,14 @@ export default function View() {
               h="9rem"
               borderRadius="0.25rem"
               border="1px solid"
-              borderColor="whiteAlpha.300"
+              borderColor="border"
               justifyContent="center"
               alignItems="center"
               cursor="pointer"
               onClick={() => uploaderRef?.current?.click()}
             >
               <Icon as={BsUpload} fontSize="32px" />
-              <Text color="whiteAlpha.700">
+              <Text color="fg.muted">
                 Click to select or drag and drop to upload file
               </Text>
               <Input
@@ -237,33 +243,32 @@ export default function View() {
                 onChange={handleFileChange}
               />
             </VStack>
-          </FormControl>
-          <FormControl>
+          </Field.Root>
+          <Field.Root>
             <Button
-              colorScheme="teal"
+              colorPalette="teal"
               onClick={handleSetContructorArgs}
-              isDisabled={!account}
+              disabled={!account}
             >
               Continue
             </Button>
-          </FormControl>
+          </Field.Root>
         </VStack>
       </VStack>
-      <Modal
-        closeOnOverlayClick={false}
-        isOpen={isOpen}
-        onClose={onClose}
-        isCentered
+      <DialogRoot
+        closeOnInteractOutside={false}
+        open={open}
+        onOpenChange={onClose}
       >
-        <ModalOverlay />
-        <ModalContent bg="gray.800">
-          <ModalHeader>Enter Contructor Arguments</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <VStack w="full" spacing={7}>
+        <DialogBackdrop />
+        <DialogContent bg="bg.panel">
+          <DialogHeader color="fg">Enter Contructor Arguments</DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody pb={6}>
+            <VStack w="full" gap={7}>
               {argsInputs?.inputs.map((p, index) => (
-                <FormControl key={index}>
-                  <FormLabel fontStyle="italic">{`${p.name} (${p.type})`}</FormLabel>
+                <Field.Root key={index}>
+                  <Field.Label fontStyle="italic">{`${p.name} (${p.type})`}</Field.Label>
                   <Input
                     type="text"
                     onChange={(e) => {
@@ -272,26 +277,26 @@ export default function View() {
                       setArgs(inputArgs);
                     }}
                   />
-                </FormControl>
+                </Field.Root>
               ))}
             </VStack>
-          </ModalBody>
-          <ModalFooter w="full">
+          </DialogBody>
+          <DialogFooter w="full">
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               mr={3}
               w="full"
               onClick={handleDeploy}
-              isLoading={isConfirming}
+              loading={isConfirming}
             >
               Deploy Contract
             </Button>
-            <Button onClick={onClose} w="full">
+            <Button colorPalette="gray" onClick={onClose} w="full">
               Cancel
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 }

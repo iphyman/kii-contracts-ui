@@ -1,9 +1,9 @@
-import { wagmiConfig } from "@app/configs";
+import { wagmiAdapter } from "@app/configs";
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
+import Providers from "./providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -17,22 +17,19 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Kiichain Contracts Ui",
+  title: "EVM Contracts Ui",
   description:
-    "Smart contract deployment and interaction tool for Kiichain and other EVM compatible blockchains",
+    "Smart contract deployment and interaction tool for EVM compatible blockchains",
 };
 
-const Providers = dynamic(() => import("./providers"), { ssr: false });
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialState = cookieToInitialState(
-    wagmiConfig,
-    headers().get("cookie")
-  );
+  const header = await headers();
+  const cookies = header.get("cookie");
+  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig, cookies);
 
   return (
     <html lang="en">

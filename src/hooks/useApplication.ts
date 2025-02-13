@@ -9,10 +9,11 @@ export interface ContractStore {
   name?: string;
   address: Address;
   abi: Abi;
+  chainId: number;
 }
 
 const contractStoreAtom = atomWithStorage<ContractStore[]>(
-  "kii-contract-ui-store",
+  "evm-contract-ui-store",
   []
 );
 

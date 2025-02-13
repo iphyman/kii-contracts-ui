@@ -1,25 +1,26 @@
 "use client";
 
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+} from "@app/components/ui/dialog";
+import { toaster } from "@app/components/ui/toaster";
 import { useApplication } from "@app/hooks";
 import {
   Button,
   Code,
-  FormControl,
-  FormLabel,
+  Field,
   Heading,
   HStack,
   IconButton,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useSearchParams } from "next/navigation";
@@ -35,13 +36,12 @@ import {
 
 export default function View() {
   const searchParams = useSearchParams();
-  const toast = useToast();
   const { contractStore } = useApplication();
   const [functionName, setFunctionName] = useState<string | undefined>(
     undefined
   );
   const [payable, setPayable] = useState<string | undefined>(undefined);
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open, onClose, onOpen } = useDisclosure();
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const [args, setArgs] = useState<any[]>([]);
   const [argsInputs, setArgsInput] = useState<AbiParameter[] | undefined>(
@@ -112,10 +112,10 @@ export default function View() {
 
   useEffect(() => {
     if (isConfirmed) {
-      toast({
+      toaster.create({
         title: "Successful!",
         description: "Action completed!",
-        status: "success",
+        type: "success",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,10 +123,10 @@ export default function View() {
 
   useEffect(() => {
     if (error) {
-      toast({
+      toaster.create({
         title: `Oops! ${error.name}`,
         description: error.message,
-        status: "error",
+        type: "error",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,29 +135,33 @@ export default function View() {
   return (
     <>
       <VStack w="full">
-        <Heading fontSize="2rem" textTransform="capitalize">
+        <Heading fontSize="2rem" color="fg" textTransform="capitalize">
           {contractName}
         </Heading>
-        <Text color="whiteAlpha.700" textAlign="center">
+        <Text color="fg.muted" textAlign="center">
           {`You are ready to interact with ${contractName} deployed on Kiichain
         Testnet at ${activeContract?.address}`}
         </Text>
-        <VStack w="full" spacing={7} mt="4rem">
+        <VStack w="full" gap={7} mt="4rem">
           {readFunctions && (
-            <VStack w="full" spacing={7} alignItems="flex-start">
-              <Text>Read only functions</Text>
+            <VStack w="full" gap={7} alignItems="flex-start">
+              <Text color="fg">Read only functions</Text>
               {readFunctions.map((p) => (
-                <HStack spacing={5} key={p.name}>
+                <HStack gap={5} key={p.name}>
                   <IconButton
-                    icon={<FaPlay />}
                     aria-label="call function"
                     onClick={() => {
                       setFunctionName(p.name);
                       setArgsInput([...p.inputs]);
                       onOpen();
                     }}
-                  />
-                  <Text fontStyle="italic">{`function ${p.name} (${p.inputs
+                  >
+                    <FaPlay />
+                  </IconButton>
+                  <Text
+                    fontStyle="italic"
+                    color="fg.muted"
+                  >{`function ${p.name} (${p.inputs
                     .map((x) => x.type)
                     .join(",")}) ${p.stateMutability} {}`}</Text>
                 </HStack>
@@ -166,12 +170,11 @@ export default function View() {
           )}
 
           {writeFunctions && (
-            <VStack w="full" spacing={7} alignItems="flex-start">
-              <Text>Read & Write functions</Text>
+            <VStack w="full" gap={7} alignItems="flex-start">
+              <Text color="fg">Read & Write functions</Text>
               {writeFunctions.map((p) => (
-                <HStack spacing={5} key={p.name}>
+                <HStack gap={5} key={p.name}>
                   <IconButton
-                    icon={<FaPlay />}
                     aria-label="call function"
                     onClick={() => {
                       setFunctionName(p.name);
@@ -181,8 +184,13 @@ export default function View() {
                       }
                       onOpen();
                     }}
-                  />
-                  <Text fontStyle="italic">{`function ${p.name} (${p.inputs
+                  >
+                    <FaPlay />
+                  </IconButton>
+                  <Text
+                    fontStyle="italic"
+                    color="fg.muted"
+                  >{`function ${p.name} (${p.inputs
                     .map((x) => x.type)
                     .join(",")}) ${p.stateMutability} {}`}</Text>
                 </HStack>
@@ -191,32 +199,31 @@ export default function View() {
           )}
         </VStack>
       </VStack>
-      <Modal
-        closeOnOverlayClick={false}
-        isOpen={isOpen}
-        onClose={onClose}
-        isCentered
+      <DialogRoot
+        closeOnInteractOutside={false}
+        open={open}
+        onOpenChange={onClose}
       >
-        <ModalOverlay />
-        <ModalContent bg="gray.800">
-          <ModalHeader>{`${functionName} Inputs`}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <VStack w="full" spacing={7}>
+        <DialogBackdrop />
+        <DialogContent bg="bg.panel">
+          <DialogHeader color="fg">{`${functionName} Inputs`}</DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody pb={6}>
+            <VStack w="full" gap={7}>
               {payable && (
-                <FormControl>
-                  <FormLabel fontStyle="italic">Payable (wei)</FormLabel>
+                <Field.Root>
+                  <Field.Label fontStyle="italic">Payable (wei)</Field.Label>
                   <Input
                     type="string"
                     value={payable}
                     onChange={(e) => setPayable(e.target.value)}
                   />
-                </FormControl>
+                </Field.Root>
               )}
               {argsInputs ? (
                 argsInputs.map((p, index) => (
-                  <FormControl key={index}>
-                    <FormLabel fontStyle="italic">{`${p.name} (${p.type})`}</FormLabel>
+                  <Field.Root key={index}>
+                    <Field.Label fontStyle="italic">{`${p.name} (${p.type})`}</Field.Label>
                     <Input
                       type="text"
                       onChange={(e) => {
@@ -225,7 +232,7 @@ export default function View() {
                         setArgs(inputArgs);
                       }}
                     />
-                  </FormControl>
+                  </Field.Root>
                 ))
               ) : (
                 <Text>No Inputs Required</Text>
@@ -238,24 +245,24 @@ export default function View() {
                 </Code>
               )}
             </VStack>
-          </ModalBody>
-          <ModalFooter w="full">
+          </DialogBody>
+          <DialogFooter w="full">
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               mr={3}
               w="full"
               onClick={handleContractCall}
-              isDisabled={isPending}
-              isLoading={isConfirming}
+              disabled={isPending}
+              loading={isConfirming}
             >
               Call Contract
             </Button>
-            <Button onClick={onClose} w="full">
+            <Button colorPalette="gray" onClick={onClose} w="full">
               Cancel
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 }

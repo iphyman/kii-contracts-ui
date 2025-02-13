@@ -4,8 +4,7 @@ import { QuestionHelper } from "@app/components/QuestionHelper";
 import { ContractStore, useApplication } from "@app/hooks";
 import {
   Button,
-  FormControl,
-  FormLabel,
+  Field,
   Heading,
   HStack,
   Input,
@@ -13,6 +12,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import { useAppKitNetwork } from "@reown/appkit/react";
 import { Abi } from "abitype/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,10 +20,12 @@ import { Address, isAddress } from "viem";
 
 export default function View() {
   const { contractStore, updateContractStore } = useApplication();
+  const { chainId } = useAppKitNetwork();
   const [state, update] = useState<ContractStore>({
     name: "",
     address: "0x",
     abi: [],
+    chainId: Number(chainId),
   });
 
   const router = useRouter();
@@ -39,6 +41,7 @@ export default function View() {
         name: state.name,
         address: state.address,
         abi: state.abi,
+        chainId: Number(chainId),
       },
     ]);
     router.push(`/contract?address=${state.address}`);
@@ -46,14 +49,16 @@ export default function View() {
 
   return (
     <VStack w="full">
-      <Heading fontSize="2rem">Add Contract From Address</Heading>
-      <Text color="whiteAlpha.700">
+      <Heading fontSize="2rem" color="fg">
+        Add Contract From Address
+      </Heading>
+      <Text color="fg.muted">
         You can add an already deployed contract to interact with
       </Text>
-      <VStack w="full" mt="4rem" spacing={7}>
-        <FormControl>
+      <VStack w="full" mt="4rem" gap={7}>
+        <Field.Root>
           <HStack>
-            <FormLabel mr="0px">Contract Address</FormLabel>
+            <Field.Label mr="0px">Contract Address</Field.Label>
             <QuestionHelper text="The address of the contract you wish to interact with" />
           </HStack>
           <Input
@@ -65,10 +70,10 @@ export default function View() {
               }))
             }
           />
-        </FormControl>
-        <FormControl>
+        </Field.Root>
+        <Field.Root>
           <HStack>
-            <FormLabel mr="0px">Contract Name</FormLabel>
+            <Field.Label mr="0px">Contract Name</Field.Label>
             <QuestionHelper text="A name to distinguish this contract with" />
           </HStack>
           <Input
@@ -77,10 +82,10 @@ export default function View() {
               update((prev) => ({ ...prev, name: e.target.value }))
             }
           />
-        </FormControl>
-        <FormControl>
+        </Field.Root>
+        <Field.Root>
           <HStack>
-            <FormLabel mr="0px">Contract ABI</FormLabel>
+            <Field.Label mr="0px">Contract ABI</Field.Label>
             <QuestionHelper text="The contract ABI" />
           </HStack>
           <Textarea
@@ -92,12 +97,12 @@ export default function View() {
               }
             }}
           />
-        </FormControl>
-        <FormControl>
-          <Button colorScheme="teal" isDisabled={!isValid} onClick={handler}>
+        </Field.Root>
+        <Field.Root>
+          <Button colorPalette="teal" disabled={!isValid} onClick={handler}>
             Lookup
           </Button>
-        </FormControl>
+        </Field.Root>
       </VStack>
     </VStack>
   );

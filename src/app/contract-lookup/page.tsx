@@ -1,6 +1,4 @@
-import dynamic from "next/dynamic";
-
-const View = dynamic(() => import("./view"), { ssr: false });
+import View from "./view";
 
 export default function Page() {
   return <View />;

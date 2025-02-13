@@ -1,7 +1,6 @@
 "use client";
 
 import { Box, HStack, Icon, Text, VStack } from "@chakra-ui/react";
-import NetworkSelector from "../NetworkSelector";
 import Link from "next/link";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { IoFileTrayFull } from "react-icons/io5";
@@ -11,19 +10,20 @@ export default function Sidebar() {
     <Box
       w="14rem"
       minH="100%"
-      bg="gray.800"
+      bg="bg.subtle"
       borderRight="1px solid"
-      borderRightColor="whiteAlpha.300"
+      borderRightColor="border"
       padding="12px"
     >
       <VStack w="full" h="full">
         <VStack w=" full" flex={1}>
-          <NetworkSelector />
-          <VStack w="full" spacing={4} mt="2rem">
+          {/* @ts-expect-error msg */}
+          <appkit-network-button />
+          <VStack w="full" gap={4} mt="2rem">
             <Link href="/add-contract" style={{ width: "100%" }}>
               <HStack
-                color="whiteAlpha.800"
-                _hover={{ color: "white" }}
+                color="fg.muted"
+                _hover={{ color: "fg" }}
                 alignItems="center"
               >
                 <Icon as={AiOutlineFileAdd} />
@@ -32,8 +32,8 @@ export default function Sidebar() {
             </Link>
             <Link href="/" style={{ width: "100%" }}>
               <HStack
-                color="whiteAlpha.800"
-                _hover={{ color: "white" }}
+                color="fg.muted"
+                _hover={{ color: "fg" }}
                 alignItems="center"
               >
                 <Icon as={IoFileTrayFull} />
@@ -42,7 +42,8 @@ export default function Sidebar() {
             </Link>
           </VStack>
         </VStack>
-        <w3m-button balance="hide" />
+        {/* @ts-expect-error msg */}
+        <appkit-connect-button />
       </VStack>
     </Box>
   );

@@ -1,12 +1,13 @@
 "use client";
 
-import { chakra, Tooltip } from "@chakra-ui/react";
+import { chakra } from "@chakra-ui/react";
 import { FaRegCircleQuestion } from "react-icons/fa6";
+import { Tooltip } from "../ui/tooltip";
 
 export function QuestionHelper({ text }: { text: string }) {
   return (
-    <Tooltip label={text} hasArrow>
-      <chakra.span fontSize="14px" color="whiteAlpha.700">
+    <Tooltip content={text} showArrow>
+      <chakra.span fontSize="14px" color="fg.muted">
         <FaRegCircleQuestion />
       </chakra.span>
     </Tooltip>

@@ -1,25 +1,43 @@
 "use client";
 
 import Sidebar from "@app/components/Sidebar";
-import { queryClient, wagmiConfig } from "@app/configs";
-import { theme } from "@app/theme";
-import { CacheProvider } from "@chakra-ui/next-js";
-import { ChakraProvider, Flex } from "@chakra-ui/react";
+import { chains, metadata, queryClient, wagmiAdapter } from "@app/configs";
+import {
+  ChakraProvider,
+  ClientOnly,
+  defaultSystem,
+  Flex,
+} from "@chakra-ui/react";
+import { abstract } from "@reown/appkit/networks";
+import { createAppKit } from "@reown/appkit/react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { State, WagmiProvider } from "wagmi";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "@app/components/ui/toaster";
 
 // Get projectId at https://cloud.walletconnect.com
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 if (!projectId) throw new Error("Project ID is not defined");
 
-createWeb3Modal({
-  wagmiConfig: wagmiConfig,
+createAppKit({
+  adapters: [wagmiAdapter],
   projectId,
-  enableAnalytics: true,
+  networks: chains,
+  defaultNetwork: abstract,
+  metadata: metadata,
+  features: {
+    analytics: false, // Optional - defaults to your Cloud configuration
+  },
   chainImages: {
-    123454321: "/logo-gradient.svg",
+    // 295: "/assets/hedera.png",
+    // 2741: "/assets/abstract.jpg",
+    // 2818: "/assets/morph.png",
+    // 42220: "/assets/celo.png",
+    // 81457: "/assets/blast.png",
+    // 534352: "/assets/scroll.png",
+    // 167000: "/assets/taiko.png",
+    // 1301: "/assets/unichain.svg",
   },
 });
 
@@ -31,19 +49,29 @@ export default function Providers({
   initialState?: State;
 }) {
   return (
-    <CacheProvider>
-      <ChakraProvider theme={theme}>
-        <WagmiProvider config={wagmiConfig} initialState={initialState}>
-          <QueryClientProvider client={queryClient}>
-            <Flex minH="100vh" bg="blackAlpha.400">
-              <Sidebar />
-              <Flex flex={1} padding="2.5rem">
-                {children}
+    <ClientOnly>
+      <ChakraProvider value={defaultSystem}>
+        <ThemeProvider
+          attribute="class"
+          forcedTheme="dark"
+          disableTransitionOnChange
+        >
+          <WagmiProvider
+            config={wagmiAdapter.wagmiConfig}
+            initialState={initialState}
+          >
+            <QueryClientProvider client={queryClient}>
+              <Flex minH="100vh" bg="bg">
+                <Sidebar />
+                <Flex flex={1} padding="2.5rem">
+                  {children}
+                  <Toaster />
+                </Flex>
               </Flex>
-            </Flex>
-          </QueryClientProvider>
-        </WagmiProvider>
+            </QueryClientProvider>
+          </WagmiProvider>
+        </ThemeProvider>
       </ChakraProvider>
-    </CacheProvider>
+    </ClientOnly>
   );
 }
