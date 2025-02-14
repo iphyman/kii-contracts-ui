@@ -250,6 +250,7 @@ export default function View() {
           <Field.Root>
             <Button
               colorPalette="teal"
+              size="lg"
               onClick={handleSetContructorArgs}
               disabled={!account}
             >

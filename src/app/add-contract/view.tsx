@@ -17,7 +17,15 @@ export default function View() {
       </Text>
       <VStack w="full" gap={7} mt="64px">
         <Link href="/instantiate" style={{ width: "100%" }}>
-          <Button h="4rem" w="full" px="32px" justifyContent="space-between">
+          <Button
+            colorPalette="gray"
+            variant="surface"
+            size="lg"
+            h="4rem"
+            w="full"
+            px="32px"
+            justifyContent="space-between"
+          >
             <HStack w="full" gap={3}>
               <Icon fontSize="24px" as={BsUpload} />
               <Text color="fg">Deploy New Contract Code</Text>
@@ -26,7 +34,15 @@ export default function View() {
           </Button>
         </Link>
         <Link href="/contract-lookup" style={{ width: "100%" }}>
-          <Button h="4rem" w="full" px="32px" justifyContent="space-between">
+          <Button
+            colorPalette="gray"
+            variant="surface"
+            size="lg"
+            h="4rem"
+            w="full"
+            px="32px"
+            justifyContent="space-between"
+          >
             <HStack w="full" gap={3}>
               <Icon fontSize="24px" as={FaCode} />
               <Text color="fg">Use On-Chain Contract Address</Text>

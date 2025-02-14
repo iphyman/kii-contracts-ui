@@ -99,7 +99,12 @@ export default function View() {
           />
         </Field.Root>
         <Field.Root>
-          <Button colorPalette="teal" disabled={!isValid} onClick={handler}>
+          <Button
+            colorPalette="teal"
+            size="lg"
+            disabled={!isValid}
+            onClick={handler}
+          >
             Lookup
           </Button>
         </Field.Root>
