@@ -43,7 +43,7 @@ export default function Sidebar() {
           </VStack>
         </VStack>
         {/* @ts-expect-error msg */}
-        <appkit-connect-button />
+        <appkit-account-button />
       </VStack>
     </Box>
   );
